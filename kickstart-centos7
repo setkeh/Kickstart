@@ -1,0 +1,48 @@
+#version=RHEL7
+# System authorization information
+auth --enableshadow --passalgo=sha512
+
+# Use Text Mode
+text
+
+# Reboot after Installer Completes
+reboot
+
+# Use network installation
+url --url="http://mirror.internode.on.net/pub/centos/7/os/x86_64"
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=sda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=eno16777736 --ipv6=auto --activate
+network  --hostname=centos7.setkeh.local
+# Root password
+rootpw --iscrypted $1$U/s30cHA$fkyh8UF997K2g.pzhP3X..
+# System services
+services --enabled="sshd"
+# System timezone
+timezone Australia/Melbourne --isUtc
+# System bootloader configuration
+bootloader --location=mbr --boot-drive=sda
+# Partition clearing information
+clearpart --all --initlabel
+# Disk partitioning information
+part /boot --asprimary --fstype="xfs" --size=500 --ondisk=sda 
+part pv.20 --fstype="lvmpv" --size=1 --grow --ondisk=sda
+volgroup centos pv.20 
+logvol /  --fstype="xfs" --grow --size=1024 --name=root --vgname=centos
+logvol swap  --fstype="swap" --size=2048 --name=swap01 --vgname=centos
+
+%packages
+@compat-libraries
+@core
+wget
+net-tools
+openssh
+
+%end
