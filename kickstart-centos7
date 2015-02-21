@@ -44,5 +44,6 @@ logvol swap  --fstype="swap" --size=2048 --name=swap01 --vgname=centos
 wget
 net-tools
 openssh
+vim
 
 %end
