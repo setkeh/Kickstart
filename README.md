@@ -18,3 +18,13 @@ Things to Note:
   * THis list will likely grow.
 
 The Goal here is to use these with my puppet learning to find new ways of auto provisioning in the cloud enviroment as well as simple ways of provisioning the infrastructure that drives the cloud.
+
+Archlinux Kickstart.
+This is essentialy just a bash script and can be run as ./archlinux-kickstart after you make it exacutable.
+this can also be run by adding:
+
+	script=http://example.com/archlinux-kickstart
+
+to the kernel line in /boot/grub/grub.cfg or on the Grub command line from the boot image.
+
+(Note i have not Tested this since the Deprication of AIF and am unsure if this method still works these days and am still testing this guy)

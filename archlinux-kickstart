@@ -1,0 +1,84 @@
+#!/bin/bash
+
+set -e
+
+newuser="setkeh"
+disk=/dev/sda
+mirror=http://mirror.aarnet.edu.au/pub/archlinux/$repo/os/$arch
+hostname="archvm"$[ 1 + $[ RANDOM % 10 ]]".setkeh.local" #Assign a Random Number between 1 and 10 for Multi Node Auto Deployments (Hostname can be Changed Later if it is Criticle"
+pingcheckhost="mirror.aarnet.edu.au"
+timezone=Australia/Melbourne
+locale="en_US.UTF-8 UTF-8"
+packages="base \
+	base-devel \
+	grub \
+	sudo \
+	openssh \
+	htop \
+	git \
+	zsh \
+	tmux \
+	vim \
+	net-tools"
+ssh_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsNENcB0+OZPFu0lKpUnDrNBLhstF+bQ+L5mnbglSb+qtd/ssogiTeXkQ+EkGN7ZN5c45A22IqriIp1qvvoygwFHxJQ5rDALrk4QiAZoztpGfoCwMQHvmg1jVGhVE9Rz/mxj8iGmQBZNIjMi1A3vqLK+OAmjdECGRqMWWHDLIZJrdTq8I9piP27Yk2/0wBLrKi6sLnW4355BtXjMe1nM8bWKBPBTG0v4WTJtgMqs/+sfnhT+XkbWp5SlAhfxu42KTSZOt55O4Q+PP5RNDE2So/H4ge00gK8dzVsHmbFUYBWxKTAxzzzsBQxlL+Q/NS39Cy6ykEvyupbzGgkg8Eghkl SETKEH"
+
+die() {
+	echo "$@"
+	exit 1
+}
+
+grep -qE '^flags\s+: .* hypervisor( |$)' /proc/cpuinfo || die "Not running in hypervisor. aborting automatic setup"
+
+# wait for host to be reachable (including dns query)
+while ! ping -c1 -W0.3 "$pingcheckhost" >/dev/null; do
+	sleep 0.2
+done
+
+parted -s -- $disk mklabel msdos mkpart primary 1 -0
+
+mkfs.ext4 ${disk}1
+mount ${disk}1 /mnt
+cat <<EOF >/etc/pacman.d/mirrorlist
+Server = $mirror
+EOF
+
+pacstrap /mnt $packages 
+genfstab -p /mnt >> /mnt/etc/fstab
+
+#Setting Hostname
+cat $hostname >> /etc/hostname 
+
+ln -s /usr/share/zoneinfo/$timezone /mnt/etc/localtime
+echo $locale > /mnt/etc/locale.gen
+arch-chroot /mnt locale-gen
+
+arch-chroot /mnt mkinitcpio -p linux
+
+#Install Boot Loader
+grub-install --target=i386-pc --recheck --debug $disk
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+
+arch-chroot /mnt useradd -m -g users -G wheel $newuser
+mkdir /mnt/root/.ssh
+touch /mnt/root/.ssh/authorized_keys
+chmod 700 /mnt/root/.ssh
+chmod 600 /mnt/root/.ssh/authorized_keys
+cat <<EOF > /mnt/root/.ssh/authorized_keys
+$ssh_key
+EOF
+
+mkdir /mnt/home/$newuser/.ssh
+chmod 700 /mnt/home/$newuser/.ssh
+cp /mnt/root/.ssh/authorized_keys /mnt/home/$newuser/.ssh/authorized_keys
+chmod 600 /mnt/home/$newuser/.ssh/authorized_keys
+arch-chroot /mnt chown -R $newuser:users /home/$newuser/.ssh
+arch-chroot /mnt passwd -d $newuser
+
+wget -O /home/$newuser/.zshrc https://raw.githubusercontent.com/setkeh/Dotfiles/master/.zshrc
+arch-chroot /mnt chsh -s /bin/zsh $newuser
+
+arch-chroot /mnt systemctl enable multi-user.target sshd 
+ln -sf /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
+
+sync
+systemctl reboot
