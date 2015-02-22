@@ -27,8 +27,6 @@ die() {
 	exit 1
 }
 
-grep -qE '^flags\s+: .* hypervisor( |$)' /proc/cpuinfo || die "Not running in hypervisor. aborting automatic setup"
-
 # wait for host to be reachable (including dns query)
 while ! ping -c1 -W0.3 "$pingcheckhost" >/dev/null; do
 	sleep 0.2
