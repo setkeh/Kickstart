@@ -15,7 +15,8 @@ The Installer Should be pretty universal.
 Things to Note:
   * These Installs are Basicly core only installs unless specified otherwise.
   * There may be Issues or incompatabilitys with some setups.
-  * THis list will likely grow.
+  * This list will likely grow.
+  * Due to an issue i was having with my openstack nodes networking i have added some networking templates to bond its two interfaces you can use them if you have 2 nics or comment them out.
 
 The Goal here is to use these with my puppet learning to find new ways of auto provisioning in the cloud enviroment as well as simple ways of provisioning the infrastructure that drives the cloud.
 
