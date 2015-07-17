@@ -1,0 +1,11 @@
+DEVICE="enp11s0"
+ONBOOT=yes
+NETBOOT=yes
+UUID="1f4ec508-f2c0-498f-b506-41985ea2d686"
+IPV6INIT=yes
+BOOTPROTO=none
+HWADDR="6c:f0:49:e0:0d:a7"
+TYPE=Ethernet
+NAME="enp11s0"
+MASTER=bond0
+SLAVE=yes

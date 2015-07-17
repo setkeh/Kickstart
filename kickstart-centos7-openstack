@@ -54,11 +54,18 @@ vim
 %end
 
 %post
-#Install Openstack
+# Install Openstack
 
 # Disable NetworkManager
 systemctl stop NetworkManager
 systemctl disable NetworkManager
+
+# Download Network Templates
+wget -O /etc/sysconfig/network-scripts/ifcfg-bond0 http://10.0.0.7/ifcfg-bond0
+wget -O /etc/sysconfig/network-scripts/ifcfg-enp10s0 http://10.0.0.7/ifcfg-enp10s0
+wget -O /etc/sysconfig/network-scripts/ifcfg-enp11s0 http://10.0.0.7/ifcfg-enp11s0
+
+# Start Networking
 systemctl enable network
 
 # Make Sure Yum is UptoDate
