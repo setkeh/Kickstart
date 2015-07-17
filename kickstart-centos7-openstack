@@ -68,6 +68,9 @@ wget -O /etc/sysconfig/network-scripts/ifcfg-enp11s0 http://10.0.0.7/ifcfg-enp11
 # Start Networking
 systemctl enable network
 
+# Add Default Route
+route add default gw 10.0.0.1
+
 # Make Sure Yum is UptoDate
 yum update -y
 
