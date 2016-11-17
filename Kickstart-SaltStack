@@ -47,16 +47,3 @@ openssh
 vim
 firewalld
 %end
-
-# Install Salt Master This Does not work and needs fixing
-#yum install https://repo.saltstack.com/yum/redhat/salt-repo-2015.8-2.el7.noarch.rpm
-#yum clean expire-cache
-#yum install salt-master
-
-systemctl enable salt-master.service
-
-# Setup Salt Firewall Rules
-systemctl enable firewalld.service
-
-firewall-cmd --permanent --zone=public --add-port=4505-4506/tcp
-firewall-cmd --zone=public --permanent --add-service=ssh
