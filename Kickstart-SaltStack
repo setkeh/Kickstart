@@ -1,0 +1,63 @@
+#version=RHEL7
+# System authorization information
+auth --enableshadow --passalgo=sha512
+
+# Use Text Mode
+text
+
+# Reboot after Installer Completes
+reboot
+
+# Use network installation
+url --url="http://mirror.internode.on.net/pub/centos/7/os/x86_64"
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=xvda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=eth0 --activate
+network  --hostname=saltmaster.setkeh.com
+# Root password
+rootpw --iscrypted $1$U/s30cHA$fkyh8UF997K2g.pzhP3X..
+# System services
+services --enabled="sshd"
+# System timezone
+timezone Australia/Melbourne --isUtc
+# System bootloader configuration
+bootloader --location=mbr --boot-drive=xvda
+# Partition clearing information
+clearpart --all --initlabel
+# Disk partitioning information
+part /boot --asprimary --fstype="xfs" --size=500 --ondisk=xvda
+part pv.20 --fstype="lvmpv" --size=1 --grow --ondisk=xvda
+volgroup centos pv.20
+logvol /  --fstype="xfs" --grow --size=1024 --name=root --vgname=centos
+logvol swap  --fstype="swap" --size=2048 --name=swap01 --vgname=centos
+
+%packages
+@compat-libraries
+@core
+wget
+net-tools
+openssh
+vim
+firewalld
+
+# Install Salt Master
+yum install https://repo.saltstack.com/yum/redhat/salt-repo-2015.8-2.el7.noarch.rpm
+yum clean expire-cache
+yum install salt-master
+
+systemctl enable salt-master.service
+
+# Setup Salt Firewall Rules
+systemctl enable firewalld.service
+
+firewall-cmd --permanent --zone=public --add-port=4505-4506/tcp
+firewall-cmd --zone=public --permanent --add-service=ssh
+
+%end
