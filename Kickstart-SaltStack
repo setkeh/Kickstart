@@ -8,9 +8,6 @@ text
 # Accept Eula
 eula --agreed
 
-# Reboot after Installer Completes
-reboot
-
 # Use network installation
 url --url="http://mirror.internode.on.net/pub/centos/7/os/x86_64"
 # Run the Setup Agent on first boot
@@ -50,18 +47,18 @@ selinux --permissive
 wget
 %end
 
-%post
+%post --interpreter=/usr/bin/bash --erroronfail --log /root/post.log
 # Install Saltstack
-echo "Installing Salt Minion"
 yum install http://provision.setkeh.com/salt-repo-2016.3-1.el7.noarch.rpm
 yum clean expire-cache
 yum install salt-minion
 
 # Download the Initial Salt minion Config for Host Configuration.
-echo "Installing default salt config"
 wget http://provision.setkeh.com/init-salt-minion.conf -O /etc/salt/minion
 
 # Enable to Service to start on boot
-echo "Enabling the Salt Service"
 systemctl start salt-minion.service
 %end
+
+# Reboot after Installer Completes
+reboot
