@@ -47,6 +47,7 @@ selinux --permissive
 %packages
 @compat-libraries
 @core
+wget
 %end
 
 %post
