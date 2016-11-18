@@ -5,6 +5,9 @@ auth --enableshadow --passalgo=sha512
 # Use Text Mode
 text
 
+# Accept Eula
+eula --agreed
+
 # Reboot after Installer Completes
 reboot
 
@@ -20,7 +23,7 @@ lang en_US.UTF-8
 
 # Network information
 network  --bootproto=dhcp --device=eth0 --activate
-network  --hostname=saltmaster.setkeh.com
+network  --hostname=orchestration.setkeh.com
 # Root password
 rootpw --iscrypted $1$U/s30cHA$fkyh8UF997K2g.pzhP3X..
 # System services
@@ -38,12 +41,22 @@ volgroup centos pv.20
 logvol /  --fstype="xfs" --grow --size=1024 --name=root --vgname=centos
 logvol swap  --fstype="swap" --size=2048 --name=swap01 --vgname=centos
 
+# Selinux State
+selinux --permissive
+
 %packages
 @compat-libraries
 @core
-wget
-net-tools
-openssh
-vim
-firewalld
 %end
+
+%post
+# Install Saltstack
+yum install http://repo.saltstack.com/yum/redhat/salt-repo-2016.3-1.el7.noarch.rpm
+yum clean expire-cache
+yum install salt-minion
+
+# Download the Initial Salt minion Config for Host Configuration.
+wget http://provision.setkeh.com/init-salt-minion.conf -O /etc/salt/minion
+
+# Enable to Service to start on boot
+systemctl start salt-minion.service
