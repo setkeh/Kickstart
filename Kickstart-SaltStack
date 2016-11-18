@@ -49,9 +49,9 @@ wget
 
 %post --interpreter=/usr/bin/bash --erroronfail --log /root/post.log
 # Install Saltstack
-yum install http://provision.setkeh.com/salt-repo-2016.3-1.el7.noarch.rpm
+yum install -y http://provision.setkeh.com/salt-repo-2016.3-1.el7.noarch.rpm
 yum clean expire-cache
-yum install salt-minion
+yum install -y salt-minion
 
 # Download the Initial Salt minion Config for Host Configuration.
 wget http://provision.setkeh.com/init-salt-minion.conf -O /etc/salt/minion
