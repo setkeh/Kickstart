@@ -57,7 +57,7 @@ yum install -y salt-minion
 wget http://provision.setkeh.com/init-salt-minion.conf -O /etc/salt/minion
 
 # Enable to Service to start on boot
-systemctl start salt-minion.service
+systemctl enable salt-minion.service
 %end
 
 # Reboot after Installer Completes
